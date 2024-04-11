@@ -1,0 +1,44 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f7f7f7;
+}
+
+.container {
+    max-width: 300px;
+    margin: 45px auto;
+    padding: 15px;
+    position: relative;
+}
+
+.cart-container {
+    margin-top: 20px;
+    border-top: 10px solid #ccc;
+    padding-top: 20px;
+}
+
+.cart-header {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.total-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Adjust the margin as needed */
+}
+
+.cart-total {
+    font-size: 18px;
+}
+
+.cart-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Adjust the margin as needed */
+}
+
+.cart-buttons button {
+    margin: 0 5px; /* Add margin between buttons */
+}
