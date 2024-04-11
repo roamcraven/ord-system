@@ -31,7 +31,7 @@
         <p>Phone: +1 (123) 456-7890</p>
     </section>
 
-    <a href="add.php" class="enter-site-btn">Enter Site</a>
+    <a href="add.php" class="enter-site-btn">Order</a>
 </main>
 
 <footer>

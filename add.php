@@ -4,14 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atecles Grill</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css"> <!-- Correct the CSS file name if necessary -->
 </head>
 <body>
+<?php
+$dishes = array(
+    array("name" => "Shrimp Sinigang", "price" => 218, "image" => "./images/img/dishes/Shrimp_sinigang.jpg"),
+    array("name" => "Chopsuey", "price" => 218, "image" => "./images/img/dishes/chopsuey.jpg"),
+    array("name" => "Tinolang manok", "price" => 185, "image" => "./images/img/dishes/tinolang-manok.jpg"),
+    array("name" => "Sotanghon", "price" => 210, "image" => "./images/img/dishes/sotanghon.jpg"),
+    array("name" => "Pancit guisado", "price" => 175, "image" => "./images/img/dishes/pancit_guisado.jpg"),
+    array("name" => "Ginataang gulay", "price" => 135, "image" => "./images/img/dishes/ginataang-gulay.jpg"),
+    array("name" => "Special lomi", "price" => 185, "image" => "./images/img/dishes/special-lomi.jpg"),
+    array("name" => "Sizzling bulalo", "price" => 210, "image" => "./images/img/dishes/sizzling-bulalo.jpg"),
+    array("name" => "Crispy pata", "price" => 580, "image" => "./images/img/dishes/crispy-pata.jpg"),
+    array("name" => "Grilled tuna panga", "price" => 240, "image" => "./images/img/dishes/tuna-panga.jpg"),
+);
+?>
 
 <div class="container">
     <h1>Atecles Grill</h1>
     <section class="customer">
-        <h1>Choose your preferred food</h1>
+        <h2>Choose your preferred food</h2>
         <p>Just click it and add it to your cart!</p>
     </section>
     <div class="category-navigation">
@@ -20,67 +34,79 @@
         <button id="sweets-btn">Sweets</button>
     </div>
     
-    <div id="category-container">
+    <div class="product-list">
+        <?php foreach ($dishes as $dish): ?>
+            <div class="product">
+                <img src="<?php echo $dish['image']; ?>" alt="<?php echo $dish['name']; ?>">
+                <h2 class="product-name"><?php echo $dish['name']; ?></h2>
+                <p class="product-price">₱<?php echo $dish['price']; ?></p>
+                <form class="add-to-cart-form">
+                    <input type="hidden" name="product-name" value="<?php echo $dish['name']; ?>">
+                    <input type="hidden" name="product-price" value="<?php echo $dish['price']; ?>">
+                    <button type="button" onclick="addToCart('<?php echo $dish['name']; ?>', <?php echo $dish['price']; ?>)">Add to Cart</button>
+                </form>
+            </div>
+        <?php endforeach; ?>
     </div>
 </div>
 
 <div class="cart-container">
-    <h2>Cart</h2>
-    <ul id="cart-items">
+    <h2 class="cart-header">Cart</h2>
+    <ul id="cart-items" class="cart-items">
+        <!-- Cart items will be loaded here -->
     </ul>
+    <div class="total-container">
+        <p class="cart-total">Total: ₱0.00</p>
+    </div>
+    <div class="cart-buttons">
+        <button onclick="cancelOrder()">Cancel Order</button>
+        <button onclick="confirmOrder()">Confirm Order</button>
+    </div>
 </div>
 
-<button id="place-order-btn">Place Order</button>
-
 <script>
-    function loadCategory(category) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("category-container").innerHTML = this.responseText;
-                addAddToCartListeners();
-            }
-        };
-        xhttp.open("GET", category + ".php", true);
-        xhttp.send();
+    function cancelOrder() {
+        sessionStorage.removeItem('cart');
+        window.location.href = "add.php";
     }
 
-    document.getElementById("dishes-btn").addEventListener("click", function() {
-        loadCategory("dishes");
-    });
-
-    document.getElementById("fruit-shakes-btn").addEventListener("click", function() {
-        loadCategory("fruit_shakes");
-    });
-
-    document.getElementById("sweets-btn").addEventListener("click", function() {
-        loadCategory("sweets");
-    });
-
-    document.getElementById("place-order-btn").addEventListener("click", function() {
-        window.location.href = "cart.php";
-    });
-
-    function addAddToCartListeners() {
-        var addToCartForms = document.querySelectorAll(".add-to-cart-form");
-        addToCartForms.forEach(function(form) {
-            form.addEventListener("submit", function(event) {
-                event.preventDefault(); // Prevent form submission
-
-                var productName = form.querySelector(".product-name").textContent;
-                var productPrice = parseFloat(form.querySelector(".product-price").textContent);
-
-                addToCart(productName, productPrice);
-            });
-        });
+    function confirmOrder() {
+        window.location.href = "thank.php";
     }
 
     function addToCart(name, price) {
-        var cartItems = document.getElementById("cart-items");
-        var newItem = document.createElement("li");
-        newItem.textContent = name + " - ₱" + price.toFixed(2);
-        cartItems.insertBefore(newItem, cartItems.firstChild); // Insert at the beginning
+        if (!sessionStorage.getItem('cart')) {
+            sessionStorage.setItem('cart', '[]');
+        }
+        var cart = JSON.parse(sessionStorage.getItem('cart'));
+        cart.push({ name: name, price: price });
+        sessionStorage.setItem('cart', JSON.stringify(cart));
+        updateCartDisplay();
     }
+
+    function updateCartDisplay() {
+        var cartItems = document.getElementById("cart-items");
+        cartItems.innerHTML = "";
+        var cart = JSON.parse(sessionStorage.getItem('cart'));
+        if (cart) {
+            cart.forEach(function(item) {
+                var newItem = document.createElement("li");
+                newItem.textContent = item.name + " - ₱" + item.price.toFixed(2);
+                cartItems.appendChild(newItem);
+            });
+        }
+        var totalContainer = document.querySelector(".cart-total");
+        if (totalContainer) {
+            var totalAmount = cart.reduce(function(acc, curr) {
+                return acc + curr.price;
+            }, 0);
+            totalContainer.textContent = "Total: ₱" + totalAmount.toFixed(2);
+        }
+    }
+
+    window.onload = function() {
+        updateCartDisplay();
+    };
 </script>
 
 </body>
